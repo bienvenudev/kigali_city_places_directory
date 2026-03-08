@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/listings_provider.dart';
 import '../../widgets/listing_card.dart';
 import '../directory/listing_detail_screen.dart';
@@ -47,7 +48,12 @@ class MyListingsScreen extends StatelessWidget {
 
           return RefreshIndicator(
             onRefresh: () async {
-              await Future.delayed(const Duration(seconds: 1));
+              // Force refresh by re-listening to user listings
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              if (authProvider.user != null) {
+                listingsProvider.listenToUserListings(authProvider.user!.uid);
+              }
+              await Future.delayed(const Duration(milliseconds: 500));
             },
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
